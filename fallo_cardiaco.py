@@ -1,6 +1,8 @@
 from datasets import load_dataset
 import numpy as np
 import pandas as pd
+import requests
+
 
 dataset = load_dataset("mstz/heart_failure")
 data = np.array (dataset["train"])
@@ -21,23 +23,23 @@ Convirtiendo estructura a DataFrame
 '''
 
 conversion_dataframe = pd.DataFrame(dataset)
-print(type(conversion_dataframe))
+print(conversion_dataframe)
 
 '''
 Division de DataFrame segun condicion is_dead
 '''
 condicion1 = conversion_dataframe['train'].apply(lambda x : x ['is_dead']==1)
 pacientes_is_dead = conversion_dataframe[condicion1]
-print (type(pacientes_is_dead))
+print (pacientes_is_dead)
 
 
 condicion2 = conversion_dataframe['train'].apply(lambda x : x ['is_dead']==0)
 pacientes_not_is_dead = conversion_dataframe[condicion2]
-print (type(pacientes_not_is_dead))
+print (pacientes_not_is_dead)
 
 
 '''
-Clacular promedios de edades de cada DataFrame
+CALCULO PROMEDIO EDADES
 '''
 promedio_edades1 = pacientes_is_dead['train'].apply(lambda x : x ['age']).mean()
 print (promedio_edades1)
@@ -46,12 +48,8 @@ promedio_edades2 = pacientes_not_is_dead['train'].apply(lambda x : x ['age']).me
 print (promedio_edades2)
 
 
-tipo_de_dato = pacientes_not_is_dead['train'].apply(lambda x : x ['age'] ).dtypes
-print("Age tipo de dato :" ,tipo_de_dato)
-
-
 '''
-Dividiendo el Dataframe segun cada caracteristica [299*13]
+DIVISION DATAFRAME A 299 FILAS Y 13 COLUMNAS
 '''
 
 def obtener_valor (diccionario,clave):
@@ -106,12 +104,31 @@ print(conversion_dataframe.dtypes)
 
 
 '''
-Calculo de hombres fumadores vs mujeres fumadoras
+CALCULO HOMBRES VS MUJERES FUMADORAS
 '''
 
 hfumadores_vs_mfumadoras = conversion_dataframe.groupby(['is_male', 'is_smoker']).size().unstack()
 print("\nresultados:")
 print(hfumadores_vs_mfumadoras)
+
+
+'''
+PROCESANDO INFORMACION EN BRUTO
+'''
+
+def recibirUrl(response):
+
+    response = requests.get("https://huggingface.co/datasets/mstz/heart_failure/raw/main/heart_failure_clinical_records_dataset.csv")
+
+    if response.status_code == 200:
+        with open("datos_en_bruto.csv",'w') as archivo:
+            archivo.write(response.text)
+        print("Archivo creado exitosamente")
+
+    else:
+        print("Error en la solicitud")
+
+
 
 
 
