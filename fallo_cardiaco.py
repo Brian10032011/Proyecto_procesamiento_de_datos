@@ -21,19 +21,19 @@ Convirtiendo estructura a DataFrame
 '''
 
 conversion_dataframe = pd.DataFrame(dataset)
-print(type(conversion_dataframe))
+print(conversion_dataframe)
 
 '''
 Division de DataFrame segun condicion is_dead
 '''
 condicion1 = conversion_dataframe['train'].apply(lambda x : x ['is_dead']==1)
 pacientes_is_dead = conversion_dataframe[condicion1]
-print (type(pacientes_is_dead))
+print (pacientes_is_dead)
 
 
 condicion2 = conversion_dataframe['train'].apply(lambda x : x ['is_dead']==0)
 pacientes_not_is_dead = conversion_dataframe[condicion2]
-print (type(pacientes_not_is_dead))
+print (pacientes_not_is_dead)
 
 
 '''
@@ -44,11 +44,6 @@ print (promedio_edades1)
 
 promedio_edades2 = pacientes_not_is_dead['train'].apply(lambda x : x ['age']).mean()
 print (promedio_edades2)
-
-
-tipo_de_dato = pacientes_not_is_dead['train'].apply(lambda x : x ['age'] ).dtypes
-print("Age tipo de dato :" ,tipo_de_dato)
-
 
 '''
 Dividiendo el Dataframe segun cada caracteristica [299*13]
