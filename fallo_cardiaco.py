@@ -116,7 +116,7 @@ print(hfumadores_vs_mfumadoras)
 PROCESANDO INFORMACION EN BRUTO
 '''
 
-def recibirUrl(response):
+def recibirUrl(url,archivo):
 
     response = requests.get("https://huggingface.co/datasets/mstz/heart_failure/raw/main/heart_failure_clinical_records_dataset.csv")
 
@@ -124,11 +124,173 @@ def recibirUrl(response):
         with open("datos_en_bruto.csv",'w') as archivo:
             archivo.write(response.text)
         print("Archivo creado exitosamente")
-
+        return f"Datos descargados y guardados en '{archivo}' exitosamente."
+        
     else:
-        print("Error en la solicitud")
+        return f"Error en la solicitud. Código de estado: {response.status_code}"
+
+if __name__ == "__main__":
+    #especificando url y nombre del archivo
+    url = "https://huggingface.co/datasets/mstz/heart_failure/raw/main/heart_failure_clinical_records_dataset.csv"
+    archivo = "datos_descargados.csv"
+
+    # Llamando a la función para descargar y guardar los datos
+    resultado = recibirUrl(url, archivo)
+    print(resultado)
 
 
 
 
+'''
+LIMPIEZA Y PREPARACION DE DATOS
+'''
+#Verificando que no existan valores faltantes
+conversion_dataframe.info()
 
+#Verificando que no existan filas repetidas
+print (conversion_dataframe.duplicated())
+
+#Verificando si existen valores atípicos y eliminarlos en la columna 'age' (0 errores atipicos)
+df_ordenado_age = conversion_dataframe.sort_values(by='age', ascending=True)
+
+Q1 = df_ordenado_age['age'].quantile(0.25)
+Q3 = df_ordenado_age['age'].quantile(0.75)
+IQR = Q3 - Q1
+
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+val_atipicos_age = df_ordenado_age[(df_ordenado_age['age'] >= lower_bound) & (df_ordenado_age['age'] <= upper_bound)]
+# print (val_atipicos_age)
+
+#Verificando si existen valores atípicos y eliminarlos en la columna 'creatinine_phosphokinase_concentration_in_blood'(29 errores atipicos)
+df_ordenado_creatinine = conversion_dataframe.sort_values(by='creatinine_phosphokinase_concentration_in_blood', ascending=True)
+
+Q1 = df_ordenado_creatinine['creatinine_phosphokinase_concentration_in_blood'].quantile(0.25)
+Q3 = df_ordenado_creatinine['creatinine_phosphokinase_concentration_in_blood'].quantile(0.75)
+IQR = Q3 - Q1
+
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+val_atipicos_creatinine = df_ordenado_creatinine[(df_ordenado_creatinine['creatinine_phosphokinase_concentration_in_blood'] >= lower_bound) & (df_ordenado_creatinine['creatinine_phosphokinase_concentration_in_blood'] <= upper_bound)]
+# print (val_atipicos_creatinine)
+
+#Verificando si existen valores atípicos y eliminarlos en la columna 'heart_ejection_fraction'(2 errores atipicos)
+df_ordenado_heart = val_atipicos_creatinine.sort_values(by='heart_ejection_fraction', ascending=True)
+
+Q1 = df_ordenado_heart['heart_ejection_fraction'].quantile(0.25)
+Q3 = df_ordenado_heart['heart_ejection_fraction'].quantile(0.75)
+IQR = Q3 - Q1
+
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+val_atipicos_heart = df_ordenado_heart[(df_ordenado_heart['heart_ejection_fraction'] >= lower_bound) & (df_ordenado_heart['heart_ejection_fraction'] <= upper_bound)]
+# print (val_atipicos_heart)
+
+#Verificando si existen valores atípicos y eliminarlos en la columna 'platelets_concentration_in_blood' (21 errores atipicos)
+df_ordenado_platelets = val_atipicos_heart.sort_values(by='platelets_concentration_in_blood', ascending=True)
+
+Q1 = df_ordenado_platelets['platelets_concentration_in_blood'].quantile(0.25)
+Q3 = df_ordenado_platelets['platelets_concentration_in_blood'].quantile(0.75)
+IQR = Q3 - Q1
+
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+val_atipicos_platelets = df_ordenado_platelets[(df_ordenado_platelets['platelets_concentration_in_blood'] >= lower_bound) & (df_ordenado_platelets['platelets_concentration_in_blood'] <= upper_bound)]
+# print (val_atipicos_platelets)
+
+#Verificando si existen valores atípicos y eliminarlos en la columna 'serum_creatinine_concentration_in_blood'(29 errores atipicos)
+df_ordenado_serum = val_atipicos_platelets.sort_values(by='serum_creatinine_concentration_in_blood', ascending=True)
+
+Q1 = df_ordenado_serum['serum_creatinine_concentration_in_blood'].quantile(0.25)
+Q3 = df_ordenado_serum['serum_creatinine_concentration_in_blood'].quantile(0.75)
+IQR = Q3 - Q1
+
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+val_atipicos_serum = df_ordenado_serum[(df_ordenado_serum['serum_creatinine_concentration_in_blood'] >= lower_bound) & (df_ordenado_serum['serum_creatinine_concentration_in_blood'] <= upper_bound)]
+# print (val_atipicos_serum)
+
+#Verificando si existen valores atípicos y eliminarlos en la columna 'serum_sodium_concentration_in_blood' (4 errores atipicos)
+df_ordenado_sodio = val_atipicos_serum.sort_values(by='serum_sodium_concentration_in_blood', ascending=True)
+
+Q1 = df_ordenado_sodio['serum_sodium_concentration_in_blood'].quantile(0.25)
+Q3 = df_ordenado_sodio['serum_sodium_concentration_in_blood'].quantile(0.75)
+IQR = Q3 - Q1
+
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+df_limpio = df_ordenado_sodio[(df_ordenado_sodio['serum_sodium_concentration_in_blood'] >= lower_bound) & (df_ordenado_sodio['serum_sodium_concentration_in_blood'] <= upper_bound)]
+print (df_limpio)
+
+#Verificando si existen valores atípicos y eliminarlos en la columna 'days_in_study' (0 errores atipicos)
+df_ordenado_dias_en_estudio = conversion_dataframe.sort_values(by='days_in_study', ascending=True)
+
+Q1 = df_ordenado_dias_en_estudio['days_in_study'].quantile(0.25)
+Q3 = df_ordenado_dias_en_estudio['days_in_study'].quantile(0.75)
+IQR = Q3 - Q1
+
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+val_atipicos_dias_en_estudio = df_ordenado_dias_en_estudio[(df_ordenado_dias_en_estudio['days_in_study'] >= lower_bound) & (df_ordenado_dias_en_estudio['days_in_study'] <= upper_bound)]
+# print (val_atipicos_dias_en_estudio)
+
+
+'''
+CREACION DE COLUMNA CATEGORIZANDO POR EDADES
+'''
+edades = [0, 12,19, 39, 59, float('inf')]
+
+etiquetas = ['Niño', 'Adolescente', 'Jovenes adulto', 'Adulto', 'Adulto mayor']
+
+df_limpio['Categoría de Edad'] = pd.cut(df_limpio['age'], bins=edades, labels=etiquetas, right=False)
+print (df_limpio)
+
+df_limpio.to_csv("resultado_df_limpio", index = False)
+
+
+'''
+ENCAPSULANDO LOGICA ANTERIOR
+'''
+
+def limpiar_y_categorizar_datos(df_limpio):
+    edades = [0, 12, 19, 39, 59, float('inf')]
+    etiquetas = ['Niño', 'Adolescente', 'Joven adulto', 'Adulto', 'Adulto mayor']
+
+    df_limpio['Categoría de Edad'] = pd.cut(df_limpio['age'], bins=edades, labels=etiquetas, right=True)
+
+    # Imprimir el DataFrame resultante después de la limpieza y categorización
+    print(df_limpio)
+
+    # Guardar el DataFrame resultante en un archivo CSV
+    df_limpio.to_csv("resultado_df_limpio.csv", index=False)
+
+    return df_limpio   
+
+def eliminar_valores_atipicos_por_columna(df_limpio,columna):
+
+    df_ordenado = df_limpio.sort_values(by=columna,ascending=True)
+    Q1 = df_ordenado[columna].quantile(0.25)
+    Q3 = df_ordenado[columna].quantile(0.75)
+    IQR = Q3 - Q1
+
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+
+    df_limpio = df_ordenado[(df_ordenado[columna] >= lower_bound) & (df_ordenado[columna] <= upper_bound)]
+
+    return df_limpio
+
+if __name__ == '__main__':
+       
+    df_limpio = eliminar_valores_atipicos_por_columna(conversion_dataframe, 'heart_ejection_fraction')
+    print("DataFrame limpio (heart_ejection_fraction):")
+    print(df_limpio)
+    df_resultante = limpiar_y_categorizar_datos(df_limpio)
+    # print(df_resultante)
