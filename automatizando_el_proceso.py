@@ -2,26 +2,16 @@ from datasets import load_dataset
 import numpy as np
 import pandas as pd
 import requests
+import sys
 
-url = "https://huggingface.co/datasets/mstz/heart_failure/raw/main/heart_failure_clinical_records_dataset.csv"
+url_recibida_por_consola = sys.argv[1]
 dataset = load_dataset("mstz/heart_failure")
-data = np.array (dataset["train"])
-
-'''
-Promedio edades de las personas participantes
-'''
-# suma = 0
-# conteo = 0
-# for item in data:
-#     suma += item ['age']
-#     conteo += 1
-# print (suma/conteo)
-
+conversion_dataframe = pd.DataFrame(dataset)
+print(conversion_dataframe)
 
 '''
 PROCESANDO INFORMACION EN BRUTO
 '''
-
 def recibirUrl(url,nombre_archivo):
 
     response = requests.get(url)
@@ -34,46 +24,15 @@ def recibirUrl(url,nombre_archivo):
         
     else:
         return f"Error en la solicitud. Código de estado: {response.status_code}"
-recibirUrl(url,"data.csv")
-dataframe = pd.read_csv("data.csv")
-
-'''
-Convirtiendo estructura a DataFrame
-'''
-
-conversion_dataframe = pd.DataFrame(dataset)
-print(conversion_dataframe)
-
-'''
-Division de DataFrame segun condicion is_dead
-'''
-condicion1 = conversion_dataframe['train'].apply(lambda x : x ['is_dead']==1)
-pacientes_is_dead = conversion_dataframe[condicion1]
-print (pacientes_is_dead)
-
-
-condicion2 = conversion_dataframe['train'].apply(lambda x : x ['is_dead']==0)
-pacientes_not_is_dead = conversion_dataframe[condicion2]
-print (pacientes_not_is_dead)
-
-
-'''
-CALCULO PROMEDIO EDADES
-'''
-promedio_edades1 = pacientes_is_dead['train'].apply(lambda x : x ['age']).mean()
-print (promedio_edades1)
-
-promedio_edades2 = pacientes_not_is_dead['train'].apply(lambda x : x ['age']).mean()
-print (promedio_edades2)
-
+# recibirUrl(url_recibida_por_consola,"data.txt")
+# dataframe = pd.read_csv("data.txt")
 
 '''
 DIVISION DATAFRAME A 299 FILAS Y 13 COLUMNAS
 '''
-
 def obtener_valores(conversion_dataframe):
-    def obtener_valor(fila, columna):
-        return fila.get(columna, None)
+    def obtener_valor(columna):
+        return conversion_dataframe['train'].apply(lambda x: x.get(columna, None))
 
     columnas_deseadas = ['age', 'has_anaemia', 'creatinine_phosphokinase_concentration_in_blood',
                        'has_diabetes', 'heart_ejection_fraction', 'has_high_blood_pressure',
@@ -82,40 +41,18 @@ def obtener_valores(conversion_dataframe):
                        'days_in_study', 'is_dead']
 
     for columna in columnas_deseadas:
-        conversion_dataframe[columna] = conversion_dataframe['train'].apply(lambda x: obtener_valor(x, columna))
+        conversion_dataframe[columna] = obtener_valor(columna)
 
     conversion_dataframe = conversion_dataframe.drop('train', axis=1)
     return conversion_dataframe
 
 # Uso de la función
 conversion_dataframe = obtener_valores(conversion_dataframe)
-print(conversion_dataframe)
+print ("Dataframe modificado :",conversion_dataframe)
 
 '''
-Consultando tipo de datos correctos
+FUNCION PARA VERIFICAR SI EXISTEN VALORES ATIPICOS , ELIMINARLOS Y CREACION DE NUEVA COLUMNA "CATEGORIA DE EDAD"
 '''
-print(conversion_dataframe.dtypes)
-
-
-'''
-CALCULO HOMBRES VS MUJERES FUMADORAS
-'''
-
-hfumadores_vs_mfumadoras = conversion_dataframe.groupby(['is_male', 'is_smoker']).size().unstack()
-print("\nresultados:")
-print(hfumadores_vs_mfumadoras)
-
-
-'''
-LIMPIEZA Y PREPARACION DE DATOS
-'''
-#Verificando que no existan valores faltantes
-conversion_dataframe.info()
-
-#Verificando que no existan filas repetidas
-print (conversion_dataframe.duplicated())
-
-#Verificando si existen valores atípicos y eliminarlos en la columna 'age' (0 errores atipicos)
 def limpiarPrepararDatos(dataframe):
     conversion_dataframe = dataframe
     df_ordenado_age = conversion_dataframe.sort_values(by='age', ascending=True)
@@ -211,13 +148,11 @@ def limpiarPrepararDatos(dataframe):
     CREACION DE COLUMNA CATEGORIZANDO POR EDADES
     '''
     edades = [0, 12,19, 39, 59, float('inf')]
-
     etiquetas = ['Niño', 'Adolescente', 'Jovenes adulto', 'Adulto', 'Adulto mayor']
     #import pdb;pdb.set_trace()
     df_limpio = df_limpio.copy()
-    df_limpio['Categoría de Edad'] = pd.cut(df_limpio['age'], bins=edades, labels=etiquetas, right=False)
+    df_limpio['Categoría de Edad'] = pd.cut(df_limpio["age"], bins=edades, labels=etiquetas, right=False)
     print (df_limpio)
-
     df_limpio.to_csv("resultado_df_limpio.csv", index = False)
-limpiarPrepararDatos(conversion_dataframe)
 
+limpiarPrepararDatos(conversion_dataframe)
