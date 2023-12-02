@@ -1,7 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-
+from sklearn.manifold import TSNE
+import plotly.express as px
 '''
 LEER Y CONVERTIR A DATAFRAME EL ARCHIVO LIMPIO
 '''
@@ -116,5 +117,39 @@ plt.axis('equal')
 plt.show()
 
 
+'''
+Parte 9 : Analizando distribuciones parte 3
+'''
+#Eliminando columnas
+eliminar_is_dead = dataframe.drop('is_dead',axis = 1)
+eliminar_categoria = eliminar_is_dead.drop('Categoría de Edad',axis = 1)
+
+#Definiendo eje X
+X = eliminar_categoria.values
+
+#Convirtiendo a un array de NumPy y definiendo eje y
+dead_event = dataframe['is_dead'].values
+y = dead_event.reshape(-1,1)
+
+#Creando array de (224,3)
+X_embedded = TSNE(
+    n_components=3,
+    learning_rate='auto',
+    init='random',
+    perplexity=3
+).fit_transform(X)
+
+#Creacion dataFrame con los resultado de TSNE
+df_tsne = pd.DataFrame(data=X_embedded, columns=['Dimension 1', 'Dimension 2', 'Dimension 3'])
+df_tsne ['is_dead'] = y
+
+#Visualizacion en 3D
+fig = px.scatter_3d(df_tsne, x='Dimension 1', y='Dimension 2', z='Dimension 3',
+                    color='is_dead', title='Visualización grafica de dispersion vivos y muertos',
+                    labels={'is_dead': 'Estado (0: Vivo, 1: Muerto)'})
+
+
+fig.update_layout(scene=dict(zaxis=dict(range=[df_tsne['Dimension 3'].min(), df_tsne['Dimension 3'].max()])))
+fig.show()
 
 
