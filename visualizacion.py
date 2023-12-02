@@ -44,3 +44,77 @@ plt.legend(loc='upper right', fontsize='small')
 plt.legend()
 plt.show()
 
+
+'''
+Parte 8 : Analizando distribuciones 2
+'''
+#Realizacion de grupos segun categorias
+si_anemi = dataframe.query('has_anaemia').shape[0]
+no_anemi = dataframe.query('has_anaemia==False').shape[0]
+si_diabe = dataframe.query('has_diabetes').shape[0]
+no_diabe = dataframe.query('has_diabetes == False').shape[0]
+si_fum = dataframe.query('is_smoker').shape[0]
+no_fum = dataframe.query('is_smoker == False').shape[0]
+si_muertos = dataframe.query('is_dead == True').shape[0]
+no_muertos = dataframe.query('is_dead == False').shape[0]
+
+'''
+CREACION DE SUBPLOTS
+'''
+#SUBPLOT DE ANEMICOS
+plt.subplot(1,4,1)
+categorias_anemi = ['No', 'Si']
+valores_anemi = [no_anemi,si_anemi]
+
+colors = ['lightcoral', 'lightgreen']
+explode = [0.1, 0]
+startangle = 90
+
+plt.pie(valores_anemi, labels=categorias_anemi, colors=colors, explode=explode, startangle=startangle, shadow=True, autopct='%1.1f%%')
+plt.title('Anemicos')
+plt.axis('equal') 
+
+#SUBPLOT DE DIABETICOS
+plt.subplot(1,4,2)
+categorias_diabe = ['No', 'Si']
+valores_diabe = [no_diabe,si_diabe]
+
+colors = ['lightcoral', 'lightgreen']
+explode = [0, 0]
+startangle = 90
+
+plt.pie(valores_diabe, labels=categorias_diabe, colors=colors, explode=explode, startangle=startangle, shadow=True, autopct='%1.1f%%')
+plt.title('Diabeticos')
+plt.axis('equal') 
+
+#SUBPLOT FUMADORES
+plt.subplot(1,4,3)
+categorias_fum = ['No', 'Si']
+valores_fum = [no_fum,si_fum]
+
+colors = ['lightcoral', 'lightgreen']
+explode = [0.1, 0]
+startangle = 90
+
+plt.pie(valores_fum, labels=categorias_fum, colors=colors, explode=explode, startangle=startangle, shadow=True, autopct='%1.1f%%')
+plt.title('Fumadores')
+plt.axis('equal') 
+
+#SUBPLOT MUERTOS
+plt.subplot(1,4,4)
+categorias_muer = ['No', 'Si']
+valores_muer = [no_muertos,si_muertos]
+
+colors = ['lightcoral', 'lightgreen']
+explode = [0.1, 0]
+startangle = 90
+
+plt.pie(valores_muer, labels=categorias_muer, colors=colors, explode=explode, startangle=startangle, shadow=True, autopct='%1.1f%%')
+plt.title('Muertos')
+plt.axis('equal') 
+
+plt.show()
+
+
+
+
