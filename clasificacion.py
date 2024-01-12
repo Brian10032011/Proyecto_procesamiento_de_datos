@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import f1_score
 
 #Cargando Dataset
 df = pd.read_csv("resultado_df_limpio.csv")
@@ -54,3 +57,28 @@ print("Precisión del modelo en train:", accuracy_score(y_train, y_pred_train))
 print("Precisión del modelo en test:", accuracy_score(y_test, y_pred_test))
 print("Profundidad:", tree.get_depth())
 print("Hojas:", tree.get_n_leaves())
+
+
+'''
+Parte 12 : Clasificacion Parte 2
+'''
+#Ajustando un random forest y su accuracy
+rf = RandomForestClassifier(n_estimators=1000, random_state=42)
+rf.fit(X_train, y_train)
+
+y_pred_rf = rf.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred_rf)
+print("Precisión del modelo:", accuracy)
+
+#Matriz de confusion
+confusion_mat = confusion_matrix(y_test, y_pred_rf)
+print("Matriz de confusión:")
+print(confusion_mat)
+
+# Calculando f1_score para cada clase
+scores = f1_score(y_test, y_pred_rf, average=None)
+print("F1 scores:", scores)
+
+#Comparacion de F1-Score y Accuracy
+comparasion_acuracy = pd.DataFrame({'F1-Score': scores, 'Accuracy': accuracy})
+print (comparasion_acuracy)
